@@ -36,6 +36,9 @@ public class UserServlet extends HttpServlet {
                 case "delete":
                     deleteUser(request, response);
                     break;
+                case "search":
+                    showSearchForm(request, response);
+                    break;
                 default:
                     listUser(request, response);
                     break;
@@ -58,6 +61,9 @@ public class UserServlet extends HttpServlet {
                     break;
                 case "edit":
                     updateUser(request, response);
+                    break;
+                case "search":
+                    listUserByCountry(request, response);
                     break;
             }
         } catch (SQLException ex) {
@@ -85,6 +91,12 @@ public class UserServlet extends HttpServlet {
         User existingUser = userDAO.selectUser(id);
         RequestDispatcher dispatcher = request.getRequestDispatcher("user/edit.jsp");
         request.setAttribute("user", existingUser);
+        dispatcher.forward(request, response);
+    }
+
+    private void showSearchForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user/search.jsp");
         dispatcher.forward(request, response);
     }
 
@@ -120,6 +132,15 @@ public class UserServlet extends HttpServlet {
         List<User> listUser = userDAO.selectAllUsers();
         request.setAttribute("listUser", listUser);
         RequestDispatcher dispatcher = request.getRequestDispatcher("user/list.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void listUserByCountry(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException {
+        String country = request.getParameter("country");
+        List<User> listUserByCountry = userDAO.selectUserByCountry(country);
+        request.setAttribute("listUserByCountry", listUserByCountry);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user/listByCountry.jsp");
         dispatcher.forward(request, response);
     }
 }

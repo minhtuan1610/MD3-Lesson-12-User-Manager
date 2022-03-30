@@ -9,11 +9,12 @@ import java.util.List;
 public class UserDAO implements IUserDAO {
     private static final String INSERT_USERS_SQL = "INSERT INTO users (name, email, country) VALUES (?,?,?);";
     private static final String SELECT_USER_BY_ID = "select id,name,email,country from users where id=?";
+    private static final String SELECT_USER_BY_COUNTRY = "select id,name,email,country from users where country=?";
     private static final String SELECT_ALL_USER = "select * from users";
     private static final String DELETE_USERS_SQL = "delete from users where id = ?;";
     private static final String UPDATE_USERS_SQL = "update users set name = ?,email = ?,country = ? where id = ?;";
 
-    private String jdbcURL = "jdbc:mysql://localhost:3306/userManagerL12?useSSL=false";
+    private String jdbcURL = "jdbc:mysql://localhost:3306/userManagerL12";
     private String jdbcUsername = "root";
     private String jdbcPassword = "12345678";
 
@@ -72,7 +73,7 @@ public class UserDAO implements IUserDAO {
             printSQLException(e);
         }
         return user;
-    }   // Chọn user
+    }   // Chọn user theo id
 
     @Override
     public List<User> selectAllUsers() {
@@ -122,6 +123,30 @@ public class UserDAO implements IUserDAO {
             rowUpdated = statement.executeUpdate() > 0;
         }
         return rowUpdated;
+    }
+
+    @Override
+    public List<User> selectUserByCountry(String country) {
+        List<User> user = new ArrayList<>();
+        //  Step 1: Establishing a Connection
+        try (Connection connection = getConnection();
+             //  Step 2: Create a statement using connection object
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_COUNTRY);) {
+            preparedStatement.setString(1, country);
+            System.out.println(preparedStatement);
+            //  Step 3: Execute the query or update query
+            ResultSet resultSet = preparedStatement.executeQuery();
+            //  Step 4: Process the ResultSet Object
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                String email = resultSet.getString("email");
+                user.add(new User(id, name, email, country));
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+        return user;
     }
 
     private void printSQLException(SQLException ex) {
